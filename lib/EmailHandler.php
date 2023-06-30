@@ -35,13 +35,18 @@ final class EmailHandler extends Handler
             ];
         } else {
             // @codeCoverageIgnoreStart
+            $method    = $_SERVER['REQUEST_METHOD'] ?? '';
             $bodyArray = [
-                'Date'         => \date(\DATE_RFC850),
-                'REQUEST_URI'  => $_SERVER['REQUEST_URI']     ?? '',
-                'HTTP_REFERER' => $_SERVER['HTTP_REFERER']    ?? '',
-                'REMOTE_ADDR'  => $_SERVER['REMOTE_ADDR']     ?? '',
-                'USER_AGENT'   => $_SERVER['HTTP_USER_AGENT'] ?? '',
+                'Date'              => \date(\DATE_RFC850),
+                'REQUEST_URI'       => $_SERVER['REQUEST_URI'] ?? '',
+                'REQUEST_METHOD'    => $method,
+                'HTTP_REFERER'      => $_SERVER['HTTP_REFERER'] ?? '',
+                'REMOTE_ADDR'       => 'https://whois.domaintools.com/' . ($_SERVER['REMOTE_ADDR'] ?? ''),
+                'USER_AGENT'        => $_SERVER['HTTP_USER_AGENT'] ?? '',
             ];
+            if ('POST' === $method) {
+                $bodyArray['$_POST = '] = \trim(\print_r($_POST, true));
+            }
             // @codeCoverageIgnoreEnd
         }
         $bodyArray['Notes'] = $this->customNotes->get();
