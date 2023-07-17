@@ -32,7 +32,12 @@ final class EmailHandler extends Handler
             $bodyArray = [
                 'Date'      => \date(\DATE_RFC850),
                 'Command'   => \sprintf('$ %s %s', \PHP_BINARY, \implode(' ', $_SERVER['argv'])),
+                'User'      => \sprintf('%s (%s:%s)', \get_current_user(), \getmyuid(), \getmygid()),
             ];
+            $sudoUser = \getenv('SUDO_USER');
+            if (false !== $sudoUser) {
+                $bodyArray['SUDO'] = \sprintf('%s (%s:%s)', $sudoUser, \getenv('SUDO_UID'), \getenv('SUDO_GID'));
+            }
         } else {
             // @codeCoverageIgnoreStart
             $method    = $_SERVER['REQUEST_METHOD'] ?? '';
