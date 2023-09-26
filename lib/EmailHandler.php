@@ -4,25 +4,29 @@ declare(strict_types=1);
 
 namespace Slam\WhoopsHandlers;
 
+use Throwable;
 use Whoops\Handler\Handler;
 use Whoops\Handler\PlainTextHandler;
 use Whoops\Util\Misc;
 
 final class EmailHandler extends Handler
 {
-    /** @var callable(string, string): void */
-    private $emailCallback;
-    private CustomNotes $customNotes;
-
-    /** @param callable(string, string): void $emailCallback */
-    public function __construct(callable $emailCallback, ?CustomNotes $customNotes = null)
-    {
-        $this->emailCallback = $emailCallback;
-        $this->customNotes   = $customNotes ?? new CustomNotes();
-    }
+    /**
+     * @param callable(string, string): void $emailCallback
+     * @param list<class-string<Throwable>>  $ignoreExceptions
+     */
+    public function __construct(
+        private $emailCallback,
+        private readonly CustomNotes $customNotes = new CustomNotes(),
+        private readonly array $ignoreExceptions = []
+    ) {}
 
     public function handle(): int
     {
+        if (\in_array($this->getException()::class, $this->ignoreExceptions, true)) {
+            return Handler::DONE;
+        }
+
         $plainTextHandler = new PlainTextHandler();
         $plainTextHandler->setRun($this->getRun());
         $plainTextHandler->setException($this->getException());

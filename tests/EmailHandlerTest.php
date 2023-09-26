@@ -90,4 +90,31 @@ final class EmailHandlerTest extends TestCase
 
         self::assertStringContainsString('mycustomuser (1234:5678)', $body);
     }
+
+    public function testSkipExceptionsConfiguredToBeIgnored(): void
+    {
+        $exception = new RuntimeException(\uniqid('ex_'));
+
+        $subject  = null;
+        $body     = null;
+        $callable = static function (string $actualSubject, string $actualBody) use (& $subject, & $body): void {
+            $subject = $actualSubject;
+            $body    = $actualBody;
+        };
+
+        $handler = new EmailHandler($callable, new CustomNotes(), [RuntimeException::class]);
+
+        $run = new Run();
+        $run->pushHandler($handler);
+
+        \ob_start();
+        $returnValue = $run->handleException($exception);
+        $output      = \ob_get_clean();
+
+        self::assertSame('', $returnValue);
+        self::assertSame('', $output);
+
+        self::assertNull($subject);
+        self::assertNull($body);
+    }
 }
