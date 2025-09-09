@@ -27,6 +27,9 @@ final class EmailHandlerTest extends TestCase
             $body    = $actualBody;
         };
         $customDetails = new CustomNotes();
+        $hideMe        = \uniqid('hideme_');
+        $customDetails->append($hideMe);
+        $customDetails->clear();
 
         $handler = new EmailHandler($callable, $customDetails);
 
@@ -51,6 +54,7 @@ final class EmailHandlerTest extends TestCase
         self::assertStringContainsString($exception->getMessage(), $body);
         self::assertStringContainsString(__FILE__, $body);
         self::assertStringContainsString($myNotes, $body);
+        self::assertStringNotContainsString($hideMe, $body);
         self::assertStringContainsString(\get_current_user(), $body);
         self::assertStringContainsString((string) \getmyuid(), $body);
         self::assertStringContainsString((string) \getmygid(), $body);

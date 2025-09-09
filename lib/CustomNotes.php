@@ -13,6 +13,11 @@ final class CustomNotes
         $this->details .= $details;
     }
 
+    public function clear(): void
+    {
+        $this->details = '';
+    }
+
     public function get(): string
     {
         return $this->details;
