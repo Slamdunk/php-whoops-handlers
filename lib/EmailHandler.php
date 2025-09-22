@@ -14,11 +14,13 @@ final class EmailHandler extends Handler
     /**
      * @param callable(string, string): void $emailCallback
      * @param list<class-string<Throwable>>  $ignoreExceptions
+     * @param non-empty-string               $remoteAddrHeader
      */
     public function __construct(
         private $emailCallback,
         private readonly CustomNotes $customNotes = new CustomNotes(),
-        private readonly array $ignoreExceptions = []
+        private readonly array $ignoreExceptions = [],
+        private readonly string $remoteAddrHeader = 'REMOTE_ADDR',
     ) {}
 
     public function handle(): int
@@ -50,7 +52,7 @@ final class EmailHandler extends Handler
                 'REQUEST_URI'       => $_SERVER['REQUEST_URI'] ?? '',
                 'REQUEST_METHOD'    => $method,
                 'HTTP_REFERER'      => $_SERVER['HTTP_REFERER'] ?? '',
-                'REMOTE_ADDR'       => 'https://whois.domaintools.com/' . ($_SERVER['REMOTE_ADDR'] ?? ''),
+                'REMOTE_ADDR'       => 'https://whois.domaintools.com/' . ($_SERVER[$this->remoteAddrHeader] ?? ''),
                 'USER_AGENT'        => $_SERVER['HTTP_USER_AGENT'] ?? '',
             ];
             if ('POST' === $method) {
